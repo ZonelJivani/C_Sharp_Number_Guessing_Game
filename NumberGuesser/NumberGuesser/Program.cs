@@ -11,17 +11,46 @@ namespace NumberGuesser
         {
             Properties props = new Properties();
             props.DisplayAppInfo();
+            props.DisplayNameEntryPrompt();
             props.ObtainUsersName();
+
             while (true)
             {
+
                 props.CreateARandomNumber();
                 if (props.NotFirstGame())
                 {
                     props.NotFirstGameSetup();
                 }
-                props.DisplayGameObjective();
+
+                while (true)
+                { 
+                    props.DisplayHUD();
+
+                    props.TakeUsersBet();
+
+                    if (props.UserBetIsNotAnInteger())
+                    {
+                        props.DisplayUserBetIsNotAnInteger();
+                    }
+                    else if (props.UserInputNotWithinBudget())
+                    {
+                        props.DisplayUserInputNotInBudget();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                props.DeterminePayout();
+                props.SubtractWagerFromBankroll();
+                props.DisplayPayout();
+                props.DisplayGamePrompt();
+
                 do
                 {
+
                     props.TakeUsersGuess();
                     if (props.UserInputIsNotAnInteger())
                     {
@@ -40,48 +69,34 @@ namespace NumberGuesser
                         if (props.UserRanOutofGuesses())
                         {
                             props.DisplayUserRanOutOfGuesses();
+                            props.RefreshGuesses();
                             break;
                         }
                         else
                         {
                             props.DisplayUserGuessIsIncorrect();
-                            if (props.CorrectNumberIsGreaterThanGuess())
-                            {
-                                props.DisplayGuessIs(ConsoleColor.Green, "Higher");
-                            }
-                            else
-                            {
-                                props.DisplayGuessIs(ConsoleColor.Red, "Lower");
-                            }
+                            props.DisplayRemainingGuesses();
+                            props.AddGuessToList();
                             props.DisplayPreviousGuesses();
+
+                            props.DisplayGamePrompt();
+                            props.DisplayRemainingGuesses();
                         }
                     }
                 } while (props.UserHasNotGuessedCorrectNumber());
+                
                 if (props.UserHasGuessedCorrectNumber())
                 {
                     props.DisplayUserGuessedCorrectNumber();
+                    props.AddWinningsToBankroll();
                     props.RefreshGuesses();
                 }
-                
-                props.DisplayPlayAgainScreen();
 
-                do
+                if (props.UserIsOutOfMoney())
                 {
-                    props.TakeInputToPlayAgain();
-                    if (props.UserWantsToPlayAgain())
-                    {
-                        props.TryAgainIsTrue();
-                        continue;
-                    }
-                    else if (props.UserDoesNotWantToPlayAgain())
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        props.DisplayNotYesOrNoErrorMessage();
-                    }
-                } while (props.DecidingToPlayAgain());
+                    props.DisplayGameOver();
+                    break;
+                }
                 props.GameStateReset();
             }
         }

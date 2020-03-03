@@ -9,48 +9,58 @@ namespace NumberGuesser
     class Properties
     {
         public string appName = "Number Guesser";
-        public string appVersion = "1.0.0";
+        public string appVersion = "2.0.0";
         public string appAuthor = "Zonel Jivani";
         public string playAgain;
         public string input;
         public string guessInput;
+        public string betInput;
 
         public int minNum = 1;
-        public int maxNum = 100;
-        public int guessesLeft = 10;
+        public int maxNum = 50;
+        public int guessesLeft = 4;
         public int spacing = 1;
         public int guess;
+        public int bet;
         public int guessRefresh = 0;
         public int correctNumber;
+        public int amountOfMoney = 500;
+        public int splitForGambling = 2;
+        public int amountToBePaid;
+        
+
 
         public bool firstGame = true;
         public bool tryAgain = false;
         public bool endProgram = false;
+
 
         public List<int> previousGuesses = new List<int>();
 
         public void DisplayAppInfo()
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{appName}: Version {appVersion} by {appAuthor}");
-            Console.ResetColor();
+            PrintColorMessage(ConsoleColor.Green, $"{appName}: Version {appVersion} by {appAuthor}");
+            PrintColorMessage(ConsoleColor.White, "WELCOME TO NUMBER GUESSER, AN APPLICATION TO GAMBLE FAKE MONEY!");
+            PressEnterToContinue();
+            
+        }
+
+        public void DisplayNameEntryPrompt()
+        {
+            Console.Clear();
+            PrintColorMessage(ConsoleColor.White, "BEFORE WE GET STARTED, PLEASE ENTER A USERNAME");
         }
 
         public void ObtainUsersName()
         {
-            AddLineBreak(spacing);
-            Console.Write("Please Enter Your Name: ");
-
+            Console.ForegroundColor = ConsoleColor.Cyan;
             input = Console.ReadLine().ToUpper().Trim();
             if (string.IsNullOrWhiteSpace(input))
             {
-                input = "User";
+                input = "John or Jane Doe";
             }
-
-            Console.Clear();
-            Console.WriteLine($"~~~~ Hello {input}, Lets Play A Game! ~~~~");
-            AddLineBreak(spacing);
+            Console.ResetColor();
         }
 
         public void CreateARandomNumber()
@@ -70,11 +80,72 @@ namespace NumberGuesser
             guessRefresh = 0;
         }
 
-        public void DisplayGameObjective()
+        public void DisplayHUD()
         {
-            Console.WriteLine($"I Have Chosen a Number Between {minNum} and {maxNum} ... Can You Guess What It Is?");
+            Console.Clear();
+            PrintColorMessage(ConsoleColor.White, $"{input}");
+            PrintColorMessage(ConsoleColor.White, $"Current Bankroll: ${amountOfMoney}");
             AddLineBreak(spacing);
-            ObjectivePrompt();
+            PrintColorMessage(ConsoleColor.White, "How Much Would You Like To Bet?");
+            PrintColorMessage(ConsoleColor.White, "If It's Your First Time Playing, I Recommend Entering 0 ...");
+
+        }
+
+        public void TakeUsersBet()
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            betInput = Console.ReadLine();
+            Console.ResetColor();
+        }
+
+        public bool UserBetIsNotAnInteger()
+        {
+            return !int.TryParse(betInput, out bet);
+        }
+
+        public void DisplayUserBetIsNotAnInteger()
+        {
+            Console.Clear();
+            PrintColorMessage(ConsoleColor.Red, $"{betInput} IS NOT A NUMBER!");
+            PressEnterToContinue();
+        }
+
+        public bool UserInputNotWithinBudget()
+        {
+            return bet > amountOfMoney || bet < 0;
+        }
+
+        public void DisplayUserInputNotInBudget()
+        {
+            Console.Clear();
+            PrintColorMessage(ConsoleColor.Red, $"Please Input A Number Between 0 And {amountOfMoney}!");
+            PressEnterToContinue();
+            
+        }
+
+        public void DeterminePayout()
+        {
+            amountToBePaid = bet * splitForGambling;
+        }
+
+        public void DisplayPayout()
+        {
+            Console.Clear();
+            PrintColorMessage(ConsoleColor.White, $"You Bet ${bet} ...");
+            PrintColorMessage(ConsoleColor.White, $"Current Bankroll: ${amountOfMoney}");
+            PrintColorMessage(ConsoleColor.Green, $"If You Win, You Will Gain ${amountToBePaid}!");
+            PressEnterToContinue();
+        }
+
+        public void SubtractWagerFromBankroll()
+        {
+            amountOfMoney -= bet;
+        }
+
+        public void DisplayGamePrompt()
+        {
+            Console.Clear();
+            PrintColorMessage(ConsoleColor.White, $"Input a Digit Between {minNum} and {maxNum} and Hit Enter!");
         }
 
         public void TakeUsersGuess()
@@ -87,13 +158,15 @@ namespace NumberGuesser
         public bool UserInputIsNotAnInteger()
         {
             return !int.TryParse(guessInput, out guess);
+            
         }
 
         public void DisplayUserNotEnterValidNumber()
         {
             Console.Clear();
             PrintColorMessage(ConsoleColor.Red, $"'{guessInput}' is not a valid input. Please enter an actual number!");
-            ObjectivePrompt();
+            PrintColorMessage(ConsoleColor.White, $"Input a Digit Between {minNum} and {maxNum} and Hit Enter!");
+
         }
 
         public void ConvertUserGuessToInteger()
@@ -109,7 +182,7 @@ namespace NumberGuesser
         {
             Console.Clear();
             PrintColorMessage(ConsoleColor.Red, $"'{guessInput}' is not within the range. Please enter a number between {minNum} and {maxNum}");
-            ObjectivePrompt();
+            PrintColorMessage(ConsoleColor.White, $"Input a Digit Between {minNum} and {maxNum} and Hit Enter!");
         }
 
         public bool UserGuessIsIncorrect()
@@ -131,41 +204,44 @@ namespace NumberGuesser
         public void DisplayUserRanOutOfGuesses()
         {
             Console.Clear();
-            PrintColorMessage(ConsoleColor.Red, $"BETTER LUCK NEXT TIME!");
-            PrintColorMessage(ConsoleColor.Green, $"The Correct Answer Was {correctNumber}!");
-            RefreshGuesses();
+            PrintColorMessage(ConsoleColor.Red, $"HOUSE WINS!");
+            PrintColorMessage(ConsoleColor.White, $"The Correct Answer Was {correctNumber}!");
+            PressEnterToContinue();
+            
         }
 
         public void DisplayUserGuessIsIncorrect()
         {
             Console.Clear();
-            PrintColorMessage(ConsoleColor.White, $"{guess} Is Not Correct!");
+            PrintColorMessage(ConsoleColor.White, $"Incorrect Answer: {guess}");
+            
+        }      
+        
+        public void DisplayRemainingGuesses()
+        {
+            PrintColorMessage(ConsoleColor.White, $"Remaining Guesses: {guessesLeft}");
         }
 
-        public bool CorrectNumberIsGreaterThanGuess()
+        public void AddGuessToList()
         {
-            return correctNumber > guess;
-        }
-
-        public void DisplayGuessIs(ConsoleColor color, string a)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine("The Correct Number is {0} than {1}!", a, guess);
-            AddLineBreak(spacing);
-            Console.ResetColor();
+            previousGuesses.Add(guess);
         }
 
         public void DisplayPreviousGuesses()
         {
-            previousGuesses.Add(guess);
-            PrintColorMessage(ConsoleColor.Gray, "Your Previous Guesses Are The Numbers:");
+            PrintColorMessage(ConsoleColor.White, "Previous Guesses:");
             foreach (int i in previousGuesses)
             {
-                Console.Write($"|{i}| ");
+                if (correctNumber > i)
+                {
+                    PrintColorMessage(ConsoleColor.Green, $"{i} - Too Low");
+                }
+                else
+                {
+                    PrintColorMessage(ConsoleColor.Red, $"{i} - Too High");
+                }
             }
-            AddLineBreak(spacing);
-            PrintColorMessage(ConsoleColor.Gray, $"You Have {guessesLeft} Guesses Remaining!");
-            ObjectivePrompt();
+            PressEnterToContinue();
         }
 
         public bool UserHasNotGuessedCorrectNumber()
@@ -181,9 +257,14 @@ namespace NumberGuesser
         public void DisplayUserGuessedCorrectNumber()
         {
             Console.Clear();
-            PrintColorMessage(ConsoleColor.Green, "WOW GREAT GUESS!");
-            PrintColorMessage(ConsoleColor.Green, $"The Correct Answer Was {correctNumber}!");
-            AddLineBreak(spacing);
+            PrintColorMessage(ConsoleColor.Green, "WINNER!");
+            PrintColorMessage(ConsoleColor.White, $"+${amountToBePaid} Added To Bankroll!");
+            PressEnterToContinue();
+        }
+
+        public void AddWinningsToBankroll()
+        {
+            amountOfMoney += amountToBePaid;
         }
 
         public int RefreshGuesses()
@@ -192,45 +273,18 @@ namespace NumberGuesser
             return guessesLeft;
         }
 
-        public void DisplayPlayAgainScreen()
+        public bool UserIsOutOfMoney()
         {
-            PrintColorMessage(ConsoleColor.Green, $"Thanks For Playing {input}!");
-            PrintColorMessage(ConsoleColor.White, "Would You Like To Try Again?");
-            PrintColorMessage(ConsoleColor.Magenta, "Type 'Y' And Hit Enter To Play Again!");
-            PrintColorMessage(ConsoleColor.Magenta, "Type 'N' And Hit Enter To End The Program!");
+            return amountOfMoney == 0;
         }
 
-        public void TakeInputToPlayAgain()
-        {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            playAgain = Console.ReadLine().ToUpper();
-            AddLineBreak(spacing);
-        }
-
-        public bool UserWantsToPlayAgain()
-        {
-            return playAgain == "Y";
-        }
-
-        public void TryAgainIsTrue()
-        {
-            tryAgain = true;
-        }
-
-        public bool UserDoesNotWantToPlayAgain()
-        {
-            return playAgain == "N";
-        }
-
-        public void DisplayNotYesOrNoErrorMessage()
+        public void DisplayGameOver()
         {
             Console.Clear();
-            PrintColorMessage(ConsoleColor.Magenta, "I'm Sorry! Please Type 'Y' To Play Again, Or 'N' To End The Program And Hit Enter!");
-        }
-
-        public bool DecidingToPlayAgain()
-        {
-            return tryAgain == false;
+            PrintColorMessage(ConsoleColor.Red, "GAME OVER");
+            PrintColorMessage(ConsoleColor.White, "You Have Ran Out Of Money!");
+            PrintColorMessage(ConsoleColor.White, $"Thanks For Playing {input}!");
+            PressEnterToContinue();
         }
 
         public void GameStateReset()
@@ -256,10 +310,10 @@ namespace NumberGuesser
             }
         }
 
-        public void ObjectivePrompt()
+        public void PressEnterToContinue()
         {
-            PrintColorMessage(ConsoleColor.White, $"Please Input a Digit Between {minNum} and {maxNum} and Hit Enter!");
-            AddLineBreak(spacing);
+            PrintColorMessage(ConsoleColor.Yellow, "Press Enter To Continue ...");
+            Console.ReadLine();
         }
     }
 }
